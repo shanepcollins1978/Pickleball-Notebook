@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shane's Pickleball Notebook V2</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div class="hero-top">
+        <img src="icon.svg" class="app-icon" alt="Pickleball paddle app icon" />
+        <div>
+          <p class="eyebrow">Pickleball Notes</p>
+          <h1>Shane's Pickleball Notebook</h1>
+          <p class="subtitle">Simple reminders, editable notes, and video links for the parts of your game that matter most.</p>
+        </div>
+      </div>
+
+      <section class="focus-card" aria-labelledby="todayFocusLabel">
+        <div>
+          <p class="eyebrow">Today's Focus</p>
+          <h2 id="todayFocusLabel">Pick one cue before you play</h2>
+        </div>
+        <textarea id="todayFocus" class="focus-input" placeholder="Example: Split step before every shot. Stay low. Watch the ball to contact."></textarea>
+      </section>
+    </header>
+
+    <main>
+      <section class="toolbar" aria-label="Notebook actions">
+        <button id="saveNowBtn" class="primary-btn">Save now</button>
+        <button id="emailBtn">Email notes</button>
+        <button id="textBtn">Text focus</button>
+        <button id="resetBtn" class="danger-btn">Clear all</button>
+      </section>
+
+      <p id="saveStatus" class="save-status" role="status">Ready</p>
+
+      <section class="cue-strip" aria-label="Quick cues">
+        <button data-cue="Hit, then split.">Hit → Split</button>
+        <button data-cue="Paddle back early.">Paddle back early</button>
+        <button data-cue="Get low and move your feet.">Low + move feet</button>
+        <button data-cue="Loose grip. Watch the ball to contact.">Loose grip</button>
+      </section>
+
+      <section id="notesGrid" class="notes-grid" aria-label="Editable pickleball notes"></section>
+    </main>
+  </div>
+
+  <template id="noteCardTemplate">
+    <article class="note-card">
+      <div class="card-header">
+        <div>
+          <p class="card-kicker"></p>
+          <h2></h2>
+        </div>
+        <span class="card-icon" aria-hidden="true"></span>
+      </div>
+      <textarea></textarea>
+    </article>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
