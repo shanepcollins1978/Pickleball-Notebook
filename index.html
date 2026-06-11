@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shane's Pickleball Notebook V2</title>
+  <title>Shane's Pickleball Notebook</title>
+  <meta name="description" content="A fast pickleball notebook for practice plans, focus cues, match notes, and drill reminders." />
   <meta name="theme-color" content="#0f172a" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon.svg" />
@@ -18,7 +19,7 @@
         <div>
           <p class="eyebrow">Pickleball Notes</p>
           <h1>Shane's Pickleball Notebook</h1>
-          <p class="subtitle">Simple reminders, editable notes, and video links for the parts of your game that matter most.</p>
+          <p class="subtitle">Plan your warm-up, lock in one cue, and keep every drill, match note, and video takeaway in one place.</p>
         </div>
       </div>
 
@@ -26,26 +27,54 @@
         <div>
           <p class="eyebrow">Today's Focus</p>
           <h2 id="todayFocusLabel">Pick one cue before you play</h2>
+          <p class="focus-help">Keep it short enough to remember between points.</p>
         </div>
         <textarea id="todayFocus" class="focus-input" placeholder="Example: Split step before every shot. Stay low. Watch the ball to contact."></textarea>
+      </section>
+
+      <section class="stats-panel" aria-label="Notebook stats">
+        <div>
+          <span id="savedNotesStat">0/10</span>
+          <p>Sections with notes</p>
+        </div>
+        <div>
+          <span id="focusWordsStat">0</span>
+          <p>Focus words</p>
+        </div>
+        <div>
+          <span id="practiceProgressStat">0/5</span>
+          <p>Practice items done</p>
+        </div>
       </section>
     </header>
 
     <main>
       <section class="toolbar" aria-label="Notebook actions">
-        <button id="saveNowBtn" class="primary-btn">Save now</button>
-        <button id="emailBtn">Email notes</button>
-        <button id="textBtn">Text focus</button>
-        <button id="resetBtn" class="danger-btn">Clear all</button>
+        <button id="saveNowBtn" class="primary-btn" type="button">Save now</button>
+        <button id="copyBtn" type="button">Copy notes</button>
+        <button id="emailBtn" type="button">Email notes</button>
+        <button id="textBtn" type="button">Text focus</button>
+        <button id="printBtn" type="button">Print</button>
+        <button id="resetBtn" class="danger-btn" type="button">Clear all</button>
       </section>
 
       <p id="saveStatus" class="save-status" role="status">Ready</p>
 
-      <section class="cue-strip" aria-label="Quick cues">
-        <button data-cue="Hit, then split.">Hit → Split</button>
-        <button data-cue="Paddle back early.">Paddle back early</button>
-        <button data-cue="Get low and move your feet.">Low + move feet</button>
-        <button data-cue="Loose grip. Watch the ball to contact.">Loose grip</button>
+      <section id="cueStrip" class="cue-strip" aria-label="Quick cues"></section>
+
+      <section class="practice-board" aria-labelledby="practiceTitle">
+        <div class="practice-copy">
+          <p class="eyebrow">Practice Builder</p>
+          <h2 id="practiceTitle">Pre-play checklist</h2>
+          <p>Check off your warm-up, then add the plan to today's focus.</p>
+        </div>
+        <div>
+          <div id="practiceList" class="practice-list"></div>
+          <div class="practice-actions">
+            <button id="randomCueBtn" type="button">Add random cue</button>
+            <button id="addPracticeFocusBtn" class="primary-btn" type="button">Add plan to focus</button>
+          </div>
+        </div>
       </section>
 
       <section id="notesGrid" class="notes-grid" aria-label="Editable pickleball notes"></section>
