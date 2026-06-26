@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pickleball Stretch Timer</title>
+  <meta name="description" content="Standalone pickleball stretching timer with real-person movement images, 30-second stretches, and 7-second transitions." />
+  <style>
+    :root {
+      --bg: #07111f;
+      --card: rgba(15, 29, 51, .9);
+      --card2: rgba(255, 255, 255, .07);
+      --text: #f8fafc;
+      --muted: #b8c5d9;
+      --accent: #7dd3fc;
+      --accent2: #a7f3d0;
+      --danger: #fca5a5;
+      --shadow: 0 24px 80px rgba(0,0,0,.3);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top left, rgba(14, 165, 233, .28), transparent 34%), linear-gradient(140deg, #06111f, #101827 58%, #172033);
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 20px 0 42px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .back-link {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 800;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px;
+      padding: 10px 14px;
+    }
+
+    header, .timer, .movement, .list, .notes {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    header {
+      padding: 28px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      color: var(--accent2);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-size: .74rem;
+      font-weight: 900;
+      margin: 0 0 8px;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 6vw, 5.1rem);
+      line-height: .92;
+      letter-spacing: -.06em;
+      margin: 0;
+    }
+
+    h2, h3 { margin: 0; }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.06rem;
+      line-height: 1.55;
+      max-width: 760px;
+      margin: 14px 0 0;
+    }
+
+    .settings {
+      display: grid;
+      gap: 10px;
+    }
+
+    .pill {
+      background: rgba(125, 211, 252, .12);
+      border: 1px solid rgba(125, 211, 252, .24);
+      border-radius: 18px;
+      padding: 13px 14px;
+      font-weight: 900;
+      color: #dff6ff;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 20px;
+    }
+
+    .movement {
+      padding: 22px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .photo-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      background: #0b1324;
+      min-height: 470px;
+    }
+
+    .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      min-height: 470px;
+      object-fit: cover;
+      display: block;
+      filter: saturate(1.03) contrast(1.02);
+    }
+
+    .photo-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 46%, rgba(2,6,23,.82));
+      pointer-events: none;
+    }
+
+    .photo-label {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .photo-label span {
+      background: rgba(15,23,42,.72);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-weight: 900;
+      font-size: .86rem;
+    }
+
+    .movement-copy {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .movement-title {
+      font-size: clamp(2rem, 5vw, 3.7rem);
+      line-height: .94;
+      letter-spacing: -.05em;
+    }
+
+    .purpose, .cue {
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 1.04rem;
+    }
+
+    .cue {
+      background: rgba(167, 243, 208, .1);
+      border: 1px solid rgba(167, 243, 208, .22);
+      border-radius: 20px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+
+    .cue strong { color: var(--accent2); }
+
+    .timer {
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .time {
+      font-size: clamp(4.4rem, 12vw, 7.5rem);
+      font-weight: 950;
+      line-height: .86;
+      text-align: center;
+      letter-spacing: -.07em;
+    }
+
+    .phase {
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      color: var(--accent2);
+      font-weight: 950;
+      min-height: 20px;
+    }
+
+    .progress {
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.09);
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: inherit;
+      transition: width .25s linear;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 17px;
+      padding: 14px 12px;
+      font-weight: 950;
+      cursor: pointer;
+      color: #06121f;
+      background: #e2e8f0;
+    }
+
+    .primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+    .danger { background: var(--danger); }
+
+    .list, .notes { padding: 18px; }
+
+    .queue {
+      list-style: none;
+      padding: 0;
+      margin: 14px 0 0;
+      display: grid;
+      gap: 8px;
+      max-height: 480px;
+      overflow: auto;
+    }
+
+    .queue li {
+      display: grid;
+      grid-template-columns: 24px 1fr auto;
+      gap: 9px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 15px;
+      background: rgba(255,255,255,.055);
+      color: var(--muted);
+      font-size: .9rem;
+      cursor: pointer;
+    }
+
+    .queue li.active {
+      color: var(--text);
+      background: rgba(125, 211, 252, .16);
+      outline: 1px solid rgba(125, 211, 252, .35);
+    }
+
+    .queue li.done { opacity: .52; text-decoration: line-through; }
+
+    .notes { margin-top: 20px; color: var(--muted); line-height: 1.5; }
+    .notes strong { color: var(--text); }
+
+    @media (max-width: 980px) {
+      header, main, .movement-copy { grid-template-columns: 1fr; }
+      .photo-wrap, .photo-wrap img { min-height: 360px; }
+    }
+
+    @media (max-width: 560px) {
+      .app { width: calc(100% - 20px); padding-top: 10px; }
+      header, .timer, .movement, .list, .notes { border-radius: 22px; }
+      header { padding: 20px; }
+      .photo-wrap, .photo-wrap img { min-height: 310px; }
+      .time { font-size: 5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <a class="back-link" href="../index.html">← Pickleball Notebook</a>
+      <a class="back-link" href="../stretching-app.html">Old version</a>
+    </div>
+
+    <header>
+      <div>
+        <p class="eyebrow">Standalone App</p>
+        <h1>Pickleball Stretch Timer</h1>
+        <p class="subtitle">A guided mobility routine for low dinks, lateral kitchen movement, serves, drives, overheads, and quicker first steps. The visuals now use real-person stretch photos instead of stick figures.</p>
+      </div>
+      <div class="settings">
+        <div class="pill">12 movements</div>
+        <div class="pill">30 seconds each</div>
+        <div class="pill">7 second transitions</div>
+        <div class="pill">Total time: 7:17</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="movement" aria-live="polite">
+        <div class="photo-wrap">
+          <img id="movementImage" alt="Real person demonstrating the current stretch" />
+          <div class="photo-label">
+            <span id="movementNumber">Movement 1 of 12</span>
+            <span id="imageTag">Real-person visual</span>
+          </div>
+        </div>
+        <div class="movement-copy">
+          <div>
+            <h2 class="movement-title" id="movementTitle">World's Greatest Stretch, Right</h2>
+            <p class="purpose" id="movementPurpose">Open the right hip flexor, hamstring, and thoracic spine for lower dinks and stronger rotation.</p>
+            <p class="cue"><strong>Pickleball cue:</strong> <span id="movementCue">Front foot outside hand. Rotate chest toward the paddle-side wall. Breathe out and get low.</span></p>
+          </div>
+        </div>
+      </section>
+
+      <aside>
+        <section class="timer" aria-label="Timer controls">
+          <p class="eyebrow" id="timerLabel">Ready</p>
+          <div class="time" id="timeDisplay">30</div>
+          <div class="phase" id="phaseDisplay">Stretch</div>
+          <div class="progress"><div class="bar" id="progressBar"></div></div>
+          <div class="controls">
+            <button class="primary" id="startPauseBtn" type="button">Start</button>
+            <button id="nextBtn" type="button">Next</button>
+            <button id="prevBtn" type="button">Back</button>
+            <button class="danger" id="resetBtn" type="button">Reset</button>
+          </div>
+        </section>
+
+        <section class="list">
+          <p class="eyebrow">Routine Queue</p>
+          <h3>Tap any movement to jump</h3>
+          <ol class="queue" id="queue"></ol>
+        </section>
+      </aside>
+    </main>
+
+    <section class="notes">
+      <strong>Image note:</strong> These are real-person reference photos pulled from public image URLs based on the movement type. They are meant as visual cues, not medical instruction. Use a pain-free range, breathe slowly, and keep each stretch gentle.
+    </section>
+  </div>
+
+  <script>
+    const STRETCH_SECONDS = 30;
+    const TRANSITION_SECONDS = 7;
+
+    const stretches = [
+      { title: "World's Greatest Stretch, Right", purpose: "Open the right hip flexor, hamstring, and thoracic spine for lower dinks and stronger rotation.", cue: "Front foot outside hand. Rotate chest toward the paddle-side wall. Breathe out and get low.", image: "https://source.unsplash.com/1200x900/?lunge,stretch,fitness" },
+      { title: "World's Greatest Stretch, Left", purpose: "Balance out the hips and spine so both sides move smoothly during kitchen exchanges.", cue: "Long back leg. Chest rotates open. Think low, balanced, and ready to recover.", image: "https://source.unsplash.com/1200x900/?yoga,lunge,stretch" },
+      { title: "Deep Squat Hold", purpose: "Build comfort in a low athletic base for dinks, drops, and resets.", cue: "Knees out, chest tall, heels heavy. This is your kitchen posture stretch.", image: "https://source.unsplash.com/1200x900/?deep-squat,fitness,stretch" },
+      { title: "Standing Adductor Rock", purpose: "Loosen the groin and inner thighs for wider lateral reaches at the non-volley zone.", cue: "Shift side to side. Keep one leg long and move like you are covering a wide dink.", image: "https://source.unsplash.com/1200x900/?side-lunge,stretch,fitness" },
+      { title: "Hip Flexor Stretch, Right", purpose: "Open the front of the right hip for longer strides, better serve rotation, and easier recovery steps.", cue: "Squeeze the right glute. Reach tall. Do not arch your low back.", image: "https://source.unsplash.com/1200x900/?hip-flexor,stretch,fitness" },
+      { title: "Hip Flexor Stretch, Left", purpose: "Open the front of the left hip so your split step and first step feel quicker.", cue: "Squeeze the left glute. Reach up and slightly across. Stay tall.", image: "https://source.unsplash.com/1200x900/?kneeling-lunge,stretch,fitness" },
+      { title: "Figure 4 Glute Stretch, Right", purpose: "Improve hip rotation and balance for pivots, quick reloads, and wide-ball recovery.", cue: "Ankle over knee. Sit back like a chair. Keep the chest proud.", image: "https://source.unsplash.com/1200x900/?figure-four,stretch,fitness" },
+      { title: "Figure 4 Glute Stretch, Left", purpose: "Improve left-side hip rotation so your base stays stable when you move laterally.", cue: "Hips back, knee open, spine long. Find the stretch, not pain.", image: "https://source.unsplash.com/1200x900/?glute-stretch,fitness" },
+      { title: "Thoracic Rotation Stretch", purpose: "Free up upper-back rotation for serves, drives, backhand counters, and overheads.", cue: "Hand behind head. Rotate elbow to the ceiling. Alternate sides slowly.", image: "https://source.unsplash.com/1200x900/?spinal-rotation,stretch,fitness" },
+      { title: "Doorway Chest Stretch", purpose: "Open the chest and shoulders for volleys, overhead reach, and less rounded posture.", cue: "Forearms on the doorway. Step through gently. Keep ribs down.", image: "https://source.unsplash.com/1200x900/?chest-stretch,fitness" },
+      { title: "Wrist Flexor and Extensor Stretch", purpose: "Loosen forearms and wrists to help reduce paddle elbow risk after long play.", cue: "Switch hands halfway. Palm down, then palm up. Gentle pressure only.", image: "https://source.unsplash.com/1200x900/?wrist-stretch,fitness" },
+      { title: "Standing Calf and Achilles Stretch", purpose: "Improve ankle mobility for split steps, first-step explosiveness, and lower defensive posture.", cue: "Switch legs halfway. Back heel down. Think springy ankles for the next point.", image: "https://source.unsplash.com/1200x900/?calf-stretch,fitness" }
+    ];
+
+    let currentIndex = 0;
+    let isTransition = false;
+    let secondsLeft = STRETCH_SECONDS;
+    let elapsedInPhase = 0;
+    let timer = null;
+
+    const image = document.getElementById("movementImage");
+    const movementNumber = document.getElementById("movementNumber");
+    const movementTitle = document.getElementById("movementTitle");
+    const movementPurpose = document.getElementById("movementPurpose");
+    const movementCue = document.getElementById("movementCue");
+    const timerLabel = document.getElementById("timerLabel");
+    const timeDisplay = document.getElementById("timeDisplay");
+    const phaseDisplay = document.getElementById("phaseDisplay");
+    const progressBar = document.getElementById("progressBar");
+    const queue = document.getElementById("queue");
+    const startPauseBtn = document.getElementById("startPauseBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function renderQueue() {
+      queue.innerHTML = "";
+      stretches.forEach((stretch, index) => {
+        const item = document.createElement("li");
+        if (index === currentIndex) item.classList.add("active");
+        if (index < currentIndex) item.classList.add("done");
+        item.innerHTML = `<span>${index + 1}</span><span>${stretch.title}</span><strong>30s</strong>`;
+        item.addEventListener("click", () => goTo(index));
+        queue.appendChild(item);
+      });
+    }
+
+    function render() {
+      const stretch = stretches[currentIndex];
+      image.src = stretch.image + "&sig=" + currentIndex;
+      image.alt = `Real person demonstrating ${stretch.title}`;
+      movementNumber.textContent = `Movement ${currentIndex + 1} of ${stretches.length}`;
+      movementTitle.textContent = stretch.title;
+      movementPurpose.textContent = stretch.purpose;
+      movementCue.textContent = stretch.cue;
+      timerLabel.textContent = isTransition ? `Next: ${stretch.title}` : stretch.title;
+      timeDisplay.textContent = secondsLeft;
+      phaseDisplay.textContent = isTransition ? "Transition" : "Stretch";
+      const phaseLength = isTransition ? TRANSITION_SECONDS : STRETCH_SECONDS;
+      progressBar.style.width = `${Math.min(100, (elapsedInPhase / phaseLength) * 100)}%`;
+      renderQueue();
+      document.title = `${secondsLeft}s • ${stretch.title}`;
+    }
+
+    function beep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = isTransition ? 660 : 520;
+        gain.gain.setValueAtTime(.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(.14, ctx.currentTime + .02);
+        gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .18);
+        osc.start();
+        osc.stop(ctx.currentTime + .2);
+      } catch (e) {}
+    }
+
+    function tick() {
+      secondsLeft -= 1;
+      elapsedInPhase += 1;
+      if (secondsLeft <= 0) {
+        beep();
+        if (!isTransition && currentIndex < stretches.length - 1) {
+          isTransition = true;
+          secondsLeft = TRANSITION_SECONDS;
+          elapsedInPhase = 0;
+        } else if (isTransition) {
+          isTransition = false;
+          currentIndex += 1;
+          secondsLeft = STRETCH_SECONDS;
+          elapsedInPhase = 0;
+        } else {
+          stop();
+          timeDisplay.textContent = "✓";
+          phaseDisplay.textContent = "Done";
+          timerLabel.textContent = "Routine complete. Nice work.";
+          progressBar.style.width = "100%";
+          return;
+        }
+      }
+      render();
+    }
+
+    function start() {
+      if (timer) return;
+      startPauseBtn.textContent = "Pause";
+      timer = setInterval(tick, 1000);
+    }
+
+    function stop() {
+      clearInterval(timer);
+      timer = null;
+      startPauseBtn.textContent = "Start";
+    }
+
+    function resetPhase() {
+      isTransition = false;
+      secondsLeft = STRETCH_SECONDS;
+      elapsedInPhase = 0;
+    }
+
+    function goTo(index) {
+      stop();
+      currentIndex = Math.max(0, Math.min(stretches.length - 1, index));
+      resetPhase();
+      render();
+    }
+
+    startPauseBtn.addEventListener("click", () => timer ? stop() : start());
+    nextBtn.addEventListener("click", () => goTo(currentIndex + 1));
+    prevBtn.addEventListener("click", () => goTo(currentIndex - 1));
+    resetBtn.addEventListener("click", () => goTo(0));
+
+    window.addEventListener("keydown", event => {
+      if (event.code === "Space") { event.preventDefault(); timer ? stop() : start(); }
+      if (event.key === "ArrowRight") goTo(currentIndex + 1);
+      if (event.key === "ArrowLeft") goTo(currentIndex - 1);
+    });
+
+    render();
+  </script>
+</body>
+</html>
